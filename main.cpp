@@ -26,7 +26,7 @@ int randomNumberInRange(const int &min, const int &max);
 
 int updateDirection(const int &inputDirection, const int &currentDirection);
 
-void update(const snakeModel &snake, const gameObject &food);
+void update(const snakeModel &snake, const gameObject &food, const char score[]);
 
 gameObject moveHead(gameObject head, const int &direction);
 
@@ -35,6 +35,8 @@ snakeModel moveSnake(snakeModel snake, const int &direction);
 bool isInSnake(const int &targetX, const int &targetY, const snakeModel &snake);
 
 int randomNumberInRange(const int &min, const int &max);
+
+void gameLoop();
 
 int main()
 {
@@ -52,8 +54,26 @@ int main()
         printf("Your terminal does not support color\n");
         exit(1);
     }
-
+    mvprintw(0,0, "Welcome to snake!");
+    mvprintw(1,0, "Start game by typing 1 or quit by pressing 2");
+    while(true){
+        char userInput = getch();
+        if(userInput == '1'){
+            gameLoop();
+            break;
+        }else if(userInput == '2'){
+            exit(1);
+        }else{
+            mvprintw(2,0, "Not a proper option");
+        }
+    }
+    refresh();
+    getch();
+    endwin();
+}
+void gameLoop(){
     struct gameObject food = spawnFood();
+    int score = 0;
 
     snakeModel snake = {{1, 3},
                         {1, 2},
@@ -72,9 +92,11 @@ int main()
         struct gameObject snakeHead = snake[snake.size() - 1];
         snakeModel snakeBody = snake;
         snakeBody.pop_back(); //removes head
-        if (isInSnake(food.x, food.y, snake))
+        if (isInSnake(food.x, food.y, snake))//checks if snake ate
         {
             food = spawnFood();
+            score += 10;
+
         } else
         {
             snake.erase(snake.begin());
@@ -83,12 +105,13 @@ int main()
         {
             break;
         }
-        update(snake, food);
+        std::string s = std::to_string(score);
+        char const *pchar = s.c_str();
+        update(snake, food, pchar);
     }
     getch();
     endwin();
 }
-
 int updateDirection(const int &inputDirection, const int &currentDirection)
 {
     if (inputDirection == directions(bottom))
@@ -127,7 +150,7 @@ snakeModel moveSnake(snakeModel snake, const int &direction)
     return snake;
 }
 
-void update(const snakeModel &snake, const gameObject &food)
+void update(const snakeModel &snake, const gameObject &food, const char *score)
 {
     clear();
     attron(COLOR_PAIR(1));
@@ -139,6 +162,8 @@ void update(const snakeModel &snake, const gameObject &food)
     attron(COLOR_PAIR(2));
     mvprintw(food.y, food.x, "*");
     attroff(COLOR_PAIR(2));
+    mvprintw(maxHeight, 0, "Score: ");
+    mvprintw(maxHeight, 7, score);
     refresh();
 }
 
@@ -186,7 +211,7 @@ gameObject spawnFood()
 
 int randomNumberInRange(const int &min, const int &max)
 {
-    std::random_device dev; 
+    std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
     return dist(dev);
