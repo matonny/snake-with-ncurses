@@ -46,7 +46,7 @@ int main()
     keypad(stdscr, TRUE);
     curs_set(0);
     start_color();
-    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(1, COLOR_GREEN, COLOR_GREEN);
     init_pair(2, COLOR_RED, COLOR_BLACK);
     if (has_colors() == FALSE)
     {
@@ -168,8 +168,9 @@ void update(const snakeModel &snake, const gameObject &food, const char *score)
     attron(COLOR_PAIR(2));
     mvprintw(food.y, food.x, "*");
     attroff(COLOR_PAIR(2));
-    mvprintw(maxHeight, 0, "Score: ");
-    mvprintw(maxHeight, 7, score);
+    char scoreMessage[] = "Score: ";
+    mvprintw(maxHeight, 0, scoreMessage);
+    mvprintw(maxHeight, sizeof(scoreMessage)-1, score);
     refresh();
 }
 
