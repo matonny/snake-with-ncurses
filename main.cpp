@@ -54,17 +54,18 @@ int main()
         printf("Your terminal does not support color\n");
         exit(1);
     }
-    mvprintw(0,0, "Welcome to snake!");
-    mvprintw(1,0, "Start game by typing 1 or quit by pressing 2");
     while(true){
+        clear();
+        mvprintw(0,0, "Welcome to snake!");
+        mvprintw(1,0, "1. Snake without obstacles\n");
+        printw("2. Quit \n");
         char userInput = getch();
         if(userInput == '1'){
             gameLoop();
-            break;
         }else if(userInput == '2'){
-            exit(1);
+            break;
         }else{
-            mvprintw(2,0, "Not a proper option");
+            printw("Not a proper option");
         }
     }
     refresh();
@@ -75,18 +76,13 @@ void gameLoop(){
     struct gameObject food = spawnFood();
     int score = 0;
 
-    snakeModel snake = {{1, 3},
+    snakeModel snake = {{1, 1},
                         {1, 2},
-                        {1, 1}};
-    int direction = directions(top);
+                        {1, 3}};
+    int direction = directions(bottom);
     while (true)
     {
-        int inputDirection = getch();
-        timeout(1000);
-        if (inputDirection > 257 && inputDirection < 262)//range of numbers for arrow keys
-        {
-            direction = updateDirection((inputDirection-258), direction); //-258 used to assign numbers 0-3 to arrow keys
-        }
+
 
         snake = moveSnake(snake, direction);
         struct gameObject snakeHead = snake[snake.size() - 1];
@@ -103,14 +99,24 @@ void gameLoop(){
         }
         if (isInSnake(snakeHead.x, snakeHead.y, snakeBody))
         {
+            char loseMessage[] = "You lost! Going back to menu";
+            mvprintw(maxHeight/2, (maxWidth/2)-sizeof(loseMessage)/2, loseMessage);
+            refresh();
+            getch();
             break;
         }
         std::string s = std::to_string(score);
         char const *pchar = s.c_str();
         update(snake, food, pchar);
+
+
+        timeout(1000);
+        int inputDirection = getch();
+        if (inputDirection > 257 && inputDirection < 262)//range of numbers for arrow keys
+        {
+            direction = updateDirection((inputDirection-258), direction); //-258 used to assign numbers 0-3 to arrow keys
+        }
     }
-    getch();
-    endwin();
 }
 int updateDirection(const int &inputDirection, const int &currentDirection)
 {
